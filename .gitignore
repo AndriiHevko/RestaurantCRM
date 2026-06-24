@@ -68,7 +68,6 @@ ehthumbs.db
 Thumbs.db
 
 # =========================
-# Project specific (Security)
+# Project specific
 # =========================
-# Ігноруємо файл з реальними паролями до БД
 src/core/dbconnection.cpp
