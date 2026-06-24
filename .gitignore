@@ -1,0 +1,74 @@
+﻿# =========================
+# Qt Creator / Qt build artifacts
+# =========================
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.qbs
+*.qbs.*
+*.prl
+*.jom
+*.autosave
+
+# =========================
+# CMake & Build directories
+# =========================
+build/
+build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+*.cmake
+*.ninja
+
+# =========================
+# Qt / Compiler output
+# =========================
+*.o
+*.obj
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.out
+*.log
+*.tmp
+*.cache
+*.directory
+
+# =========================
+# Generated moc, rcc and ui files
+# =========================
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+
+# =========================
+# IDE Settings (VS Code, Visual Studio)
+# =========================
+.vscode/
+*.vcxproj*
+*.sln
+*.user
+*.user.*
+
+# =========================
+# OS generated files
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =========================
+# Project specific (Security)
+# =========================
+# Ігноруємо файл з реальними паролями до БД
+src/core/dbconnection.cpp

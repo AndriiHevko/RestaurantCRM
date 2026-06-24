@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MenuWindow</class>
+ <widget class="QDialog" name="MenuWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>901</width>
+    <height>500</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="QTableWidget" name="tableWidget">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>103</y>
+     <width>741</width>
+     <height>321</height>
+    </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <column>
+    <property name="text">
+     <string>Count</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Назва</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Опис</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Ціна</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Об'єм</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Категорія</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Наявність</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>+</string>
+    </property>
+   </column>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>650</x>
+     <y>10</y>
+     <width>151</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>All Menu</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="myOrder">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>440</y>
+     <width>741</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>24</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>My Order</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="mainMenu">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>151</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Main Menu</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="sushi">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>10</y>
+     <width>151</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Sushi</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="drinks">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>10</y>
+     <width>151</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Drinks</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="alcoholDrinks">
+   <property name="geometry">
+    <rect>
+     <x>490</x>
+     <y>10</y>
+     <width>151</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>13</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Alcohol Drinks</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="mainMenuBox">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>118</width>
+     <height>341</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Main Menu</string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QPushButton" name="salads">
+      <property name="text">
+       <string>Salads</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="firstDishes">
+      <property name="text">
+       <string>First Dishes</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="mainDishes">
+      <property name="text">
+       <string>Main Dishes</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="sideDishes">
+      <property name="text">
+       <string>Side Dishes</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="pizza">
+      <property name="text">
+       <string>Pizza</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="burgers">
+      <property name="text">
+       <string>Burgers</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="appetizer">
+      <property name="text">
+       <string>Appetizer</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="desserts">
+      <property name="text">
+       <string>Desserts</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="sushiMenu">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>118</width>
+     <height>341</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Sushi </string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QPushButton" name="futomaki">
+      <property name="text">
+       <string>Futomaki</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="california">
+      <property name="text">
+       <string>California</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="filadelphia">
+      <property name="text">
+       <string>Filadelphia</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="original">
+      <property name="text">
+       <string>Original</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="dragons">
+      <property name="text">
+       <string>Dragons</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="sets">
+      <property name="text">
+       <string>Sets</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="drinksMenu">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>118</width>
+     <height>341</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Drinks</string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
+     <widget class="QPushButton" name="coffee">
+      <property name="text">
+       <string>Coffee</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="tea">
+      <property name="text">
+       <string>Tea</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="milkshake">
+      <property name="text">
+       <string>Milkshake</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="fresh">
+      <property name="text">
+       <string>Fresh</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="limonade">
+      <property name="text">
+       <string>Limonade</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="Smoothies">
+      <property name="text">
+       <string>Smoothies</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="coldDrinks">
+      <property name="text">
+       <string>Cold Drinks</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QGroupBox" name="drinksMenuAlco">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>118</width>
+     <height>341</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Alcohol Drinks</string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_4">
+    <item>
+     <widget class="QPushButton" name="beer">
+      <property name="text">
+       <string>Beer</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="hotDrinks">
+      <property name="text">
+       <string>Hot Drinks</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="wine">
+      <property name="text">
+       <string>Wine</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="cocktails">
+      <property name="text">
+       <string>Cocktails</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="brandy">
+      <property name="text">
+       <string>Brandy</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="horilka">
+      <property name="text">
+       <string>Horilka</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="djin">
+      <property name="text">
+       <string>Djin</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="tequila">
+      <property name="text">
+       <string>Tequila</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="rom">
+      <property name="text">
+       <string>Rom</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="whiskey">
+      <property name="text">
+       <string>Whiskey</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
