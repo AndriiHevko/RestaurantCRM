@@ -1,4 +1,8 @@
 #include "server_login_creation.h"
+#include <QSqlDriver>
+#include <QSqlField>
+#include <QDebug>
+#include <QSqlError>
 
 ServerLoginCreation::ServerLoginCreation()
 {
@@ -13,16 +17,29 @@ QString ServerLoginCreation::getRole(const QString &userLogin, const QString &us
         return "";
     }
 
-    QSqlQuery query;
-    query.prepare("SELECT role FROM public.\"users\" WHERE userlogin = :UserLogin AND userpassword = :UserPassword");
-    query.bindValue(":UserLogin", userLogin);
-    query.bindValue(":UserPassword", userPassword);
+    // Отримуємо драйвер БД для безпечного екранування
+    QSqlDriver *driver = sqlServer.getDB().driver();
 
-    if (query.exec())
+    // Безпечно форматуємо змінні
+    QSqlField loginField("userlogin", QMetaType::fromType<QString>());
+    loginField.setValue(userLogin);
+    QString safeLogin = driver->formatValue(loginField);
+
+    QSqlField passField("userpassword", QMetaType::fromType<QString>());
+    passField.setValue(userPassword);
+    QString safePass = driver->formatValue(passField);
+
+    QString queryString = QString("SELECT \"Role\" FROM \"Users\" WHERE \"UserLogin\" = %1 AND \"UserPassword\" = %2")
+                              .arg(safeLogin, safePass);
+
+    QSqlQuery query(sqlServer.getDB());
+
+    if (query.exec(queryString))
     {
         if (query.next())
         {
-            QString role = query.value("role").toString();
+            QString role = query.value("Role").toString();
+            sqlServer.closeDB();
             return role;
         }
     }
@@ -43,20 +60,35 @@ bool ServerLoginCreation::isDataUnique(const QString &userLogin, const QString &
         return false;
     }
 
-    QSqlQuery checkQuery;
-    checkQuery.prepare("SELECT COUNT(*) FROM Users WHERE UserLogin = :UserLogin OR Email = :Email OR Phone = :Phone");
-    checkQuery.bindValue(":UserLogin", userLogin);
-    checkQuery.bindValue(":Email", userEmail);
-    checkQuery.bindValue(":Phone", userPhone);
+    QSqlDriver *driver = sqlServer.getDB().driver();
 
-    if (!checkQuery.exec())
+    QSqlField loginField("UserLogin", QMetaType::fromType<QString>());
+    loginField.setValue(userLogin);
+    QString safeLogin = driver->formatValue(loginField);
+
+    QSqlField emailField("Email", QMetaType::fromType<QString>());
+    emailField.setValue(userEmail);
+    QString safeEmail = driver->formatValue(emailField);
+
+    QSqlField phoneField("Phone", QMetaType::fromType<QString>());
+    phoneField.setValue(userPhone);
+    QString safePhone = driver->formatValue(phoneField);
+
+    QString queryString = QString("SELECT COUNT(*) FROM Users WHERE UserLogin = %1 OR Email = %2 OR Phone = %3")
+                              .arg(safeLogin, safeEmail, safePhone);
+
+    QSqlQuery checkQuery(sqlServer.getDB());
+
+    if (!checkQuery.exec(queryString))
     {
         qDebug() << "Error while checking uniqueness:" << checkQuery.lastError().text();
+        sqlServer.closeDB();
         return false;
     }
 
     if (checkQuery.next() && checkQuery.value(0).toInt() > 0)
     {
+        sqlServer.closeDB();
         return false;
     }
 
@@ -73,18 +105,31 @@ bool ServerLoginCreation::registerUser(const QString &userLogin, const QString &
         return false;
     }
 
-    QSqlQuery query;
-    query.prepare("INSERT INTO Users (UserLogin, UserPassword, Role, FirstName, LastName, Email, Phone) "
-                  "VALUES (:UserLogin, :UserPassword, :Role, :FirstName, :LastName, :Email, :Phone)");
-    query.bindValue(":UserLogin", userLogin);
-    query.bindValue(":UserPassword", userPassword);
-    query.bindValue(":FirstName", firstName);
-    query.bindValue(":LastName", lastName);
-    query.bindValue(":Email", email);
-    query.bindValue(":Phone", phone);
-    query.bindValue(":Role", "user");
+    QSqlDriver *driver = sqlServer.getDB().driver();
 
-    if (query.exec())
+    QSqlField loginField("UserLogin", QMetaType::fromType<QString>()); loginField.setValue(userLogin);
+    QSqlField passField("UserPassword", QMetaType::fromType<QString>()); passField.setValue(userPassword);
+    QSqlField roleField("Role", QMetaType::fromType<QString>()); roleField.setValue("user"); // фіксуємо роль як user
+    QSqlField fnField("FirstName", QMetaType::fromType<QString>()); fnField.setValue(firstName);
+    QSqlField lnField("LastName", QMetaType::fromType<QString>()); lnField.setValue(lastName);
+    QSqlField emailField("Email", QMetaType::fromType<QString>()); emailField.setValue(email);
+    QSqlField phoneField("Phone", QMetaType::fromType<QString>()); phoneField.setValue(phone);
+
+    QString safeLogin = driver->formatValue(loginField);
+    QString safePass  = driver->formatValue(passField);
+    QString safeRole  = driver->formatValue(roleField);
+    QString safeFn    = driver->formatValue(fnField);
+    QString safeLn    = driver->formatValue(lnField);
+    QString safeEmail = driver->formatValue(emailField);
+    QString safePhone = driver->formatValue(phoneField);
+
+    QString queryString = QString("INSERT INTO Users (UserLogin, UserPassword, Role, FirstName, LastName, Email, Phone) "
+                                  "VALUES (%1, %2, %3, %4, %5, %6, %7)")
+                              .arg(safeLogin, safePass, safeRole, safeFn, safeLn, safeEmail, safePhone);
+
+    QSqlQuery query(sqlServer.getDB());
+
+    if (query.exec(queryString))
     {
         sqlServer.closeDB();
         return true;

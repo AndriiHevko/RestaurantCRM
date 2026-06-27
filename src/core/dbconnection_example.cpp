@@ -3,12 +3,11 @@
 dbConnection::dbConnection()
 {
     sqlServer = QSqlDatabase::addDatabase("QPSQL");
-    // sqlServer.setDatabaseName("RestaurantDSN");
 
-    sqlServer.setHostName("");
+    sqlServer.setHostName("aws-0-eu-west-1.pooler.supabase.com");
     sqlServer.setPort(5432);
     sqlServer.setDatabaseName("postgres");
-    sqlServer.setUserName("postgres");
+    sqlServer.setUserName("postgres.*********");
     sqlServer.setPassword("");
     sqlServer.setConnectOptions("sslmode=require");
 }

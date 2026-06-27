@@ -1,5 +1,9 @@
 #include "server_user.h"
 #include "dbconnection.h"
+#include <QSqlDriver>
+#include <QSqlField>
+#include <QSqlError>
+#include <QDebug>
 
 ServerUser::ServerUser() {}
 
@@ -11,12 +15,19 @@ QString ServerUser::getUserId(const QString& userLogin)
         return QString();
     }
 
-    QSqlQuery query;
-    query.prepare("SELECT UserId FROM Users WHERE UserLogin = :UserLogin");
-    query.bindValue(":UserLogin", userLogin);
+    QSqlDriver *driver = sqlServer.getDB().driver();
 
-    if (query.exec() && query.next()) {
-        return query.value("UserId").toString();
+    QSqlField loginField("UserLogin", QMetaType::fromType<QString>());
+    loginField.setValue(userLogin);
+    QString safeLogin = driver->formatValue(loginField);
+
+    QString queryString = QString("SELECT \"UserId\" FROM \"Users\" WHERE \"UserLogin\" = %1")
+                              .arg(safeLogin);
+
+    QSqlQuery query(sqlServer.getDB());
+
+    if (query.exec(queryString) && query.next()) {
+        return query.value(0).toString();
     }
 
     qDebug() << "Error while fetching user ID:" << query.lastError().text();
@@ -31,18 +42,36 @@ bool ServerUser::insertOrders(const QString& userId, const std::map<orderInfo, i
         return false;
     }
 
-    QSqlQuery query;
-    query.prepare("INSERT INTO Orders (UserId, OrderName, OrderCount, Price, Status) "
-                  "VALUES (:UserId, :OrderName, :OrderCount, :Price, :Status)");
+    QSqlDriver *driver = sqlServer.getDB().driver();
+    QSqlQuery query(sqlServer.getDB());
 
     for (const auto& order : orders) {
-        query.bindValue(":UserId", userId);
-        query.bindValue(":OrderName", order.first.orderName);
-        query.bindValue(":OrderCount", order.second);
-        query.bindValue(":Price", order.first.price.toDouble() * order.second);
-        query.bindValue(":Status", "InProgress");
+        QSqlField userIdField("UserId", QMetaType::fromType<QString>());
+        userIdField.setValue(userId);
 
-        if (!query.exec()) {
+        QSqlField orderNameField("OrderName", QMetaType::fromType<QString>());
+        orderNameField.setValue(order.first.orderName);
+
+        QSqlField orderCountField("OrderCount", QMetaType::fromType<int>());
+        orderCountField.setValue(order.second);
+
+        QSqlField priceField("Price", QMetaType::fromType<double>());
+        priceField.setValue(order.first.price.toDouble() * order.second);
+
+        QSqlField statusField("Status", QMetaType::fromType<QString>());
+        statusField.setValue("InProgress");
+
+        QString safeUserId = driver->formatValue(userIdField);
+        QString safeOrderName = driver->formatValue(orderNameField);
+        QString safeOrderCount = driver->formatValue(orderCountField);
+        QString safePrice = driver->formatValue(priceField);
+        QString safeStatus = driver->formatValue(statusField);
+
+        QString queryString = QString("INSERT INTO \"Orders\" (\"UserId\", \"OrderName\", \"OrderCount\", \"Price\", \"Status\") "
+                                      "VALUES (%1, %2, %3, %4, %5)")
+                                  .arg(safeUserId, safeOrderName, safeOrderCount, safePrice, safeStatus);
+
+        if (!query.exec(queryString)) {
             qDebug() << "Error while inserting order:" << query.lastError().text();
             return false;
         }
@@ -61,11 +90,18 @@ QVector<MenuItem> ServerUser::fetchMenuItems(const QString& matchingPattern)
         return menuItems;
     }
 
-    QSqlQuery query;
-    query.prepare("SELECT * FROM Menu WHERE \"Category\" LIKE :matchingPattern");
-    query.bindValue(":matchingPattern", "%" + matchingPattern + "%");
+    QSqlDriver *driver = sqlServer.getDB().driver();
 
-    if (query.exec()) {
+    QSqlField patternField("Category", QMetaType::fromType<QString>());
+    patternField.setValue("%" + matchingPattern + "%");
+    QString safePattern = driver->formatValue(patternField);
+
+    QString queryString = QString("SELECT * FROM \"Menu\" WHERE \"Category\" LIKE %1")
+                              .arg(safePattern);
+
+    QSqlQuery query(sqlServer.getDB());
+
+    if (query.exec(queryString)) {
         while (query.next()) {
             MenuItem item;
             item.itemName = query.value("ItemName").toString();
@@ -73,7 +109,7 @@ QVector<MenuItem> ServerUser::fetchMenuItems(const QString& matchingPattern)
             item.price = query.value("Price").toString();
             item.weight = query.value("Weight").toString();
             item.category = query.value("Category").toString();
-            item.isAvailable = query.value("IsAvailable").toString();
+            item.isAvailable = query.value("IsAvailable").toBool() ? "yes" : "no";
             menuItems.append(item);
         }
     } else {

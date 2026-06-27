@@ -131,53 +131,54 @@ void AdminWindow::showTableWidgetUsers(QSqlQuery &query)
 
 void AdminWindow::showTableWidgetMenu(QSqlQuery &query)
 {
+    if (query.lastError().isValid()) {
+        QMessageBox::critical(this, "Error", "Database error:\n" + query.lastError().text());
+        return;
+    }
+
     ui->tableWidgetMenu->clearContents();
     ui->tableWidgetMenu->setRowCount(0);
 
     int row = 0;
-    if (query.exec()) {
-        while (query.next()) {
-            ui->tableWidgetMenu->insertRow(row);
+    while (query.next()) {
+        ui->tableWidgetMenu->insertRow(row);
 
-            QTableWidgetItem *menuItemtemId = new QTableWidgetItem(query.value("MenuItemID").toString());
-            menuItemtemId->setToolTip(query.value("MenuItemID").toString());
-            ui->tableWidgetMenu->setItem(row, 0, menuItemtemId);
+        QTableWidgetItem *menuItemtemId = new QTableWidgetItem(query.value("MenuItemID").toString());
+        menuItemtemId->setToolTip(query.value("MenuItemID").toString());
+        ui->tableWidgetMenu->setItem(row, 0, menuItemtemId);
 
-            QTableWidgetItem *itemName = new QTableWidgetItem(query.value("ItemName").toString());
-            itemName->setToolTip(query.value("ItemName").toString());
-            ui->tableWidgetMenu->setItem(row, 1, itemName);
+        QTableWidgetItem *itemName = new QTableWidgetItem(query.value("ItemName").toString());
+        itemName->setToolTip(query.value("ItemName").toString());
+        ui->tableWidgetMenu->setItem(row, 1, itemName);
 
-            QTableWidgetItem *description = new QTableWidgetItem(query.value("Description").toString());
-            description->setToolTip(query.value("Description").toString());
-            ui->tableWidgetMenu->setItem(row, 2, description);
+        QTableWidgetItem *description = new QTableWidgetItem(query.value("Description").toString());
+        description->setToolTip(query.value("Description").toString());
+        ui->tableWidgetMenu->setItem(row, 2, description);
 
-            QTableWidgetItem *price = new QTableWidgetItem(query.value("Price").toString());
-            price->setToolTip(query.value("Price").toString());
-            ui->tableWidgetMenu->setItem(row, 3, price);
+        QTableWidgetItem *price = new QTableWidgetItem(query.value("Price").toString());
+        price->setToolTip(query.value("Price").toString());
+        ui->tableWidgetMenu->setItem(row, 3, price);
 
-            QTableWidgetItem *weight = new QTableWidgetItem(query.value("Weight").toString());
-            weight->setToolTip(query.value("Weight").toString());
-            ui->tableWidgetMenu->setItem(row, 4, weight);
+        QTableWidgetItem *weight = new QTableWidgetItem(query.value("Weight").toString());
+        weight->setToolTip(query.value("Weight").toString());
+        ui->tableWidgetMenu->setItem(row, 4, weight);
 
-            QTableWidgetItem *category = new QTableWidgetItem(query.value("Category").toString());
-            category->setToolTip(query.value("Category").toString());
-            ui->tableWidgetMenu->setItem(row, 5, category);
+        QTableWidgetItem *category = new QTableWidgetItem(query.value("Category").toString());
+        category->setToolTip(query.value("Category").toString());
+        ui->tableWidgetMenu->setItem(row, 5, category);
 
-            QString availabilityText = (query.value("IsAvailable") == "1") ? "yes" : "no";
-            QTableWidgetItem *isAvailable = new QTableWidgetItem(availabilityText);
-            isAvailable->setToolTip(availabilityText);
-            ui->tableWidgetMenu->setItem(row, 6, isAvailable);
+        QString availabilityText = (query.value("IsAvailable") == "1") ? "yes" : "no";
+        QTableWidgetItem *isAvailable = new QTableWidgetItem(availabilityText);
+        isAvailable->setToolTip(availabilityText);
+        ui->tableWidgetMenu->setItem(row, 6, isAvailable);
 
-            QPushButton* actionButtonMenu = new QPushButton("Action", ui->tableWidgetMenu);
-            connect(actionButtonMenu, &QPushButton::clicked, this, [this, row]()
-                    {
-                        onActionButtonClickedMenu(row);
-                    });
-            ui->tableWidgetMenu->setCellWidget(row, 7, actionButtonMenu);
-            row++;
-        }
-    } else {
-        QMessageBox::critical(this, "Error", "Database error");
+        QPushButton* actionButtonMenu = new QPushButton("Action", ui->tableWidgetMenu);
+        connect(actionButtonMenu, &QPushButton::clicked, this, [this, row]()
+                {
+                    onActionButtonClickedMenu(row);
+                });
+        ui->tableWidgetMenu->setCellWidget(row, 7, actionButtonMenu);
+        row++;
     }
 }
 

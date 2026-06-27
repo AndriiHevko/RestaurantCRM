@@ -1,6 +1,10 @@
 #include "server_employee.h"
 #include <QDate>
 #include <QTime>
+#include <QSqlDriver>
+#include <QSqlField>
+#include <QSqlError>
+#include <QDebug>
 
 ServerEmployee::ServerEmployee() {}
 
@@ -12,22 +16,23 @@ QSqlQuery ServerEmployee::getAllOrdersForToday()
         return QSqlQuery();
     }
 
-    QSqlQuery query;
-    query.prepare(R"(
-    SELECT u.FirstName, u.LastName,
-    DATE_TRUNC('minute', o.OrderDate) AS RoundedOrderDate,
-    STRING_AGG(o.OrderName, ', ') AS OrderNames,
-    STRING_AGG(CAST(o.OrderCount AS TEXT), ', ') AS OrderCounts,
-    SUM(o.Price) AS TotalPrice,
-    CASE WHEN COUNT(DISTINCT o.Status) = 1 THEN MIN(o.Status) ELSE 'Multiple Statuses' END AS Status
-    FROM Orders o
-    JOIN Users u ON o.UserId = u.UserId
-    WHERE DATE(o.OrderDate) = CURRENT_DATE
-    GROUP BY u.FirstName, u.LastName, DATE_TRUNC('minute', o.OrderDate)
-    ORDER BY RoundedOrderDate
-    )");
+    QSqlQuery query(sqlServer.getDB());
 
-    if (!query.exec())
+    QString queryString = R"(
+    SELECT u."FirstName", u."LastName",
+    DATE_TRUNC('minute', o."OrderDate") AS "RoundedOrderDate",
+    STRING_AGG(o."OrderName", ', ') AS "OrderNames",
+    STRING_AGG(CAST(o."OrderCount" AS TEXT), ', ') AS "OrderCounts",
+    SUM(o."Price") AS "TotalPrice",
+    CASE WHEN COUNT(DISTINCT o."Status") = 1 THEN MIN(o."Status") ELSE 'Multiple Statuses' END AS "Status"
+    FROM "Orders" o
+    JOIN "Users" u ON o."UserId" = u."UserId"
+    WHERE DATE(o."OrderDate") = CURRENT_DATE
+    GROUP BY u."FirstName", u."LastName", DATE_TRUNC('minute', o."OrderDate")
+    ORDER BY "RoundedOrderDate"
+    )";
+
+    if (!query.exec(queryString))
     {
         qDebug() << "Query execution error:" << query.lastError();
     }
@@ -43,13 +48,22 @@ int ServerEmployee::getUserId(const QString& firstName, const QString& lastName)
         return -1;
     }
 
-    QSqlQuery query;
-    query.prepare("SELECT UserId FROM Users WHERE FirstName = :firstName AND LastName = :lastName");
+    QSqlDriver *driver = sqlServer.getDB().driver();
 
-    query.bindValue(":firstName", firstName);
-    query.bindValue(":lastName", lastName);
+    QSqlField fnField("FirstName", QMetaType::fromType<QString>());
+    fnField.setValue(firstName);
+    QString safeFn = driver->formatValue(fnField);
 
-    if (!query.exec() || !query.next())
+    QSqlField lnField("LastName", QMetaType::fromType<QString>());
+    lnField.setValue(lastName);
+    QString safeLn = driver->formatValue(lnField);
+
+    QString queryString = QString("SELECT \"UserId\" FROM \"Users\" WHERE \"FirstName\" = %1 AND \"LastName\" = %2")
+                              .arg(safeFn, safeLn);
+
+    QSqlQuery query(sqlServer.getDB());
+
+    if (!query.exec(queryString) || !query.next())
     {
         qDebug() << "Error fetching UserId:" << query.lastError();
         return -1;
@@ -66,27 +80,35 @@ QSqlQuery ServerEmployee::findUserOrders(const QString& firstName, const QString
         return QSqlQuery();
     }
 
-    QSqlQuery query;
-    query.prepare(R"(
-    SELECT u.FirstName, u.LastName,
-    DATE_TRUNC('minute', o.OrderDate) AS RoundedOrderDate,
-    STRING_AGG(o.OrderName, ', ') AS OrderNames,
-    STRING_AGG(CAST(o.OrderCount AS TEXT), ', ') AS OrderCounts,
-    SUM(o.Price) AS TotalPrice,
-    CASE WHEN COUNT(DISTINCT o.Status) = 1 THEN MIN(o.Status) ELSE 'Multiple Statuses' END AS Status
-    FROM Orders o
-    JOIN Users u ON o.UserId = u.UserId
-    WHERE u.FirstName = :firstName
-    AND u.LastName = :lastName
-    AND DATE(o.OrderDate) = CURRENT_DATE
-    GROUP BY u.FirstName, u.LastName, DATE_TRUNC('minute', o.OrderDate)
-    ORDER BY RoundedOrderDate
-    )");
+    QSqlDriver *driver = sqlServer.getDB().driver();
 
-    query.bindValue(":firstName", firstName);
-    query.bindValue(":lastName", lastName);
+    QSqlField fnField("FirstName", QMetaType::fromType<QString>());
+    fnField.setValue(firstName);
+    QString safeFn = driver->formatValue(fnField);
 
-    if (!query.exec())
+    QSqlField lnField("LastName", QMetaType::fromType<QString>());
+    lnField.setValue(lastName);
+    QString safeLn = driver->formatValue(lnField);
+
+    QString queryString = QString(R"(
+    SELECT u."FirstName", u."LastName",
+    DATE_TRUNC('minute', o."OrderDate") AS "RoundedOrderDate",
+    STRING_AGG(o."OrderName", ', ') AS "OrderNames",
+    STRING_AGG(CAST(o."OrderCount" AS TEXT), ', ') AS "OrderCounts",
+    SUM(o."Price") AS "TotalPrice",
+    CASE WHEN COUNT(DISTINCT o."Status") = 1 THEN MIN(o."Status") ELSE 'Multiple Statuses' END AS "Status"
+    FROM "Orders" o
+    JOIN "Users" u ON o."UserId" = u."UserId"
+    WHERE u."FirstName" = %1
+    AND u."LastName" = %2
+    AND DATE(o."OrderDate") = CURRENT_DATE
+    GROUP BY u."FirstName", u."LastName", DATE_TRUNC('minute', o."OrderDate")
+    ORDER BY "RoundedOrderDate"
+    )").arg(safeFn, safeLn);
+
+    QSqlQuery query(sqlServer.getDB());
+
+    if (!query.exec(queryString))
     {
         qDebug() << "Query execution error:" << query.lastError();
     }
@@ -102,27 +124,38 @@ QSqlQuery ServerEmployee::findUserOrdersByTime(const QDate& currentDate, const Q
         return QSqlQuery();
     }
 
-    QSqlQuery query;
-    query.prepare(R"(
-    SELECT u.FirstName, u.LastName,
-    DATE_TRUNC('minute', o.OrderDate) AS RoundedOrderDate,
-    STRING_AGG(o.OrderName, ', ') AS OrderNames,
-    STRING_AGG(CAST(o.OrderCount AS TEXT), ', ') AS OrderCounts,
-    SUM(o.Price) AS TotalPrice,
-    CASE WHEN COUNT(DISTINCT o.Status) = 1 THEN MIN(o.Status) ELSE 'Multiple Statuses' END AS Status
-    FROM Orders o
-    JOIN Users u ON o.UserId = u.UserId
-    WHERE DATE(o.OrderDate) = :currentDate
-    AND CAST(o.OrderDate AS TIME) BETWEEN :timeStart AND :timeEnd
-    GROUP BY u.FirstName, u.LastName, DATE_TRUNC('minute', o.OrderDate)
-    ORDER BY RoundedOrderDate
-    )");
+    QSqlDriver *driver = sqlServer.getDB().driver();
 
-    query.bindValue(":currentDate", currentDate);
-    query.bindValue(":timeStart", timeStart);
-    query.bindValue(":timeEnd", timeEnd);
+    QSqlField dateField("currentDate", QMetaType::fromType<QString>());
+    dateField.setValue(currentDate.toString("yyyy-MM-dd"));
+    QString safeDate = driver->formatValue(dateField);
 
-    if (!query.exec())
+    QSqlField startField("timeStart", QMetaType::fromType<QString>());
+    startField.setValue(timeStart.toString("HH:mm:ss"));
+    QString safeStart = driver->formatValue(startField);
+
+    QSqlField endField("timeEnd", QMetaType::fromType<QString>());
+    endField.setValue(timeEnd.toString("HH:mm:ss"));
+    QString safeEnd = driver->formatValue(endField);
+
+    QString queryString = QString(R"(
+    SELECT u."FirstName", u."LastName",
+    DATE_TRUNC('minute', o."OrderDate") AS "RoundedOrderDate",
+    STRING_AGG(o."OrderName", ', ') AS "OrderNames",
+    STRING_AGG(CAST(o."OrderCount" AS TEXT), ', ') AS "OrderCounts",
+    SUM(o."Price") AS "TotalPrice",
+    CASE WHEN COUNT(DISTINCT o."Status") = 1 THEN MIN(o."Status") ELSE 'Multiple Statuses' END AS "Status"
+    FROM "Orders" o
+    JOIN "Users" u ON o."UserId" = u."UserId"
+    WHERE DATE(o."OrderDate") = %1
+    AND CAST(o."OrderDate" AS TIME) BETWEEN %2 AND %3
+    GROUP BY u."FirstName", u."LastName", DATE_TRUNC('minute', o."OrderDate")
+    ORDER BY "RoundedOrderDate"
+    )").arg(safeDate, safeStart, safeEnd);
+
+    QSqlQuery query(sqlServer.getDB());
+
+    if (!query.exec(queryString))
     {
         qDebug() << "Query execution error:" << query.lastError();
     }
@@ -141,25 +174,32 @@ bool ServerEmployee::updateOrderStatus(int userId, const QDateTime& roundedOrder
     QDateTime rounded = roundedOrderDate;
     rounded.setTime(QTime(rounded.time().hour(), rounded.time().minute(), 0));
 
-    QSqlQuery updateQuery;
-    updateQuery.prepare(R"(
-    UPDATE Orders
-    SET Status = :newStatus
-    WHERE UserId = :userId
-    AND DATE_TRUNC('minute', OrderDate) = :roundedOrderDate
-    )");
+    QSqlDriver *driver = sqlServer.getDB().driver();
 
-    updateQuery.bindValue(":newStatus", newStatus);
-    updateQuery.bindValue(":userId", userId);
-    updateQuery.bindValue(":roundedOrderDate", rounded.toString("yyyy-MM-dd HH:mm:00"));
+    QSqlField statusField("Status", QMetaType::fromType<QString>());
+    statusField.setValue(newStatus);
+    QString safeStatus = driver->formatValue(statusField);
 
-    // qDebug() << "Rounded Order Date (Local):" << roundedOrderDate;
-    // qDebug() << "Rounded Order Date (UTC):" << roundedOrderDate;
+    QSqlField idField("UserId", QMetaType::fromType<int>());
+    idField.setValue(userId);
+    QString safeId = driver->formatValue(idField);
 
+    QSqlField dateField("roundedOrderDate", QMetaType::fromType<QString>());
+    dateField.setValue(rounded.toString("yyyy-MM-dd HH:mm:00"));
+    QString safeDate = driver->formatValue(dateField);
 
-    if (!updateQuery.exec())
+    QString queryString = QString(R"(
+    UPDATE "Orders"
+    SET "Status" = %1
+    WHERE "UserId" = %2
+    AND DATE_TRUNC('minute', "OrderDate") = %3
+    )").arg(safeStatus, safeId, safeDate);
+
+    QSqlQuery query(sqlServer.getDB());
+
+    if (!query.exec(queryString))
     {
-        qDebug() << "Error updating status:" << updateQuery.lastError();
+        qDebug() << "Error updating status:" << query.lastError();
         return false;
     }
 

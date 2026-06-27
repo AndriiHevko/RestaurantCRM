@@ -68,9 +68,8 @@ bool MenuWindow::Show(const QString& matchingPattern)
         category->setToolTip(item.category);
         ui->tableWidget->setItem(row, 5, category);
 
-        QString availabilityText = (item.isAvailable == "1") ? "yes" : "no";
-        QTableWidgetItem* isAvailable = new QTableWidgetItem(availabilityText);
-        isAvailable->setToolTip(availabilityText);
+        QTableWidgetItem* isAvailable = new QTableWidgetItem(item.isAvailable);
+        isAvailable->setToolTip(item.isAvailable);
         ui->tableWidget->setItem(row, 6, isAvailable);
 
         QPushButton* actionButton = new QPushButton("Add", ui->tableWidget);
@@ -202,7 +201,6 @@ void MenuWindow::on_california_clicked() { QString matchingPattern = "%Калі�
 void MenuWindow::on_filadelphia_clicked() { QString matchingPattern = "%Філадельфія%"; Show(matchingPattern); }
 
 // original
-
 void MenuWindow::on_original_clicked() { QString matchingPattern = "%Оригінальні%"; Show(matchingPattern); }
 
 // dragons
