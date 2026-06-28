@@ -101,7 +101,7 @@ src/
 ├── core/
 │   ├── dbconnection.h / .cpp         # Singleton-підключення до PostgreSQL
 │   ├── dbconnection_example.cpp      # Приклад конфігурації підключення
-│   └── generic_utils.h              # Спільні структури (orderInfo)
+│   └── generic_utils.h               # Спільні структури (orderInfo)
 │
 ├── backend/
 │   ├── server_login_creation.h/.cpp  # Авторизація, реєстрація, визначення ролі
