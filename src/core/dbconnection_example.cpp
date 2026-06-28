@@ -2,14 +2,22 @@
 
 dbConnection::dbConnection()
 {
-    sqlServer = QSqlDatabase::addDatabase("QPSQL");
+    if (QSqlDatabase::contains("qt_sql_default_connection"))
+    {
+        sqlServer = QSqlDatabase::database("qt_sql_default_connection");
+    }
+    else
+    {
+        sqlServer = QSqlDatabase::addDatabase("QPSQL");
+        sqlServer.setHostName("pooler.supabase.com");
 
-    sqlServer.setHostName("aws-0-eu-west-1.pooler.supabase.com");
-    sqlServer.setPort(5432);
-    sqlServer.setDatabaseName("postgres");
-    sqlServer.setUserName("postgres.*********");
-    sqlServer.setPassword("");
-    sqlServer.setConnectOptions("sslmode=require");
+        sqlServer.setPort(5432);
+
+        sqlServer.setDatabaseName("postgres");
+        sqlServer.setUserName("UserName");
+        sqlServer.setPassword("Password");
+        sqlServer.setConnectOptions("sslmode=require");
+    }
 }
 
 dbConnection::~dbConnection()
